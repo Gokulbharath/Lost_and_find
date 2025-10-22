@@ -11,6 +11,8 @@ import ReportFound from './pages/ReportFound';
 import Search from './pages/Search';
 import ItemDetails from './pages/ItemDetails';
 import Profile from './pages/Profile';
+import MyReports from './pages/MyReports';
+import AllReports from './pages/AllReports';
 
 function App() {
   return (
@@ -48,6 +50,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/my-reports"
+              element={
+                <ProtectedRoute>
+                  <MyReports />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/all-reports" element={<AllReports />} />
           </Routes>
         </ToastProvider>
       </AuthProvider>

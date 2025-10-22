@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X } from 'lucide-react';
 import { mockDataService } from '../lib/mockData';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { useToast } from '../components/Toast';
 import { FormInput, FormTextArea, FormSelect } from '../components/FormInput';
 import Navbar from '../components/Navbar';
@@ -118,41 +118,34 @@ export default function ReportFound() {
       let imageUrl = null;
 
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('item-images')
-          .upload(fileName, imageFile);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('item-images')
-          .getPublicUrl(fileName);
-
-        imageUrl = publicUrl;
+        // Convert image to data URL for demo
+        const reader = new FileReader();
+        await new Promise<void>((resolve, reject) => {
+          reader.onload = () => {
+            imageUrl = reader.result as string;
+            resolve();
+          };
+          reader.onerror = reject;
+          reader.readAsDataURL(imageFile);
+        });
       }
 
-      const { error } = await supabase.from('found_items').insert([
-        {
-          user_id: user.id,
-          title: formData.title,
-          category: formData.category,
-          description: formData.description,
-          found_date: formData.found_date,
-          location: formData.location,
-          contact_info: formData.contact_info,
-          image_url: imageUrl,
-        },
-      ]);
-
-      if (error) throw error;
+      await mockDataService.addFoundItem({
+        user_id: user.id,
+        title: formData.title,
+        category: formData.category as 'Electronics' | 'Books' | 'ID Cards' | 'Clothing' | 'Others',
+        description: formData.description,
+        found_date: formData.found_date,
+        location: formData.location,
+        contact_info: formData.contact_info,
+        image_url: imageUrl,
+        status: 'available',
+      });
 
       showToast('Found item reported successfully!', 'success');
       navigate('/');
-    } catch (error: any) {
-      showToast(error.message || 'Failed to report found item', 'error');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Failed to report found item', 'error');
     } finally {
       setLoading(false);
     }

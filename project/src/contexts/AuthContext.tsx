@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useEffect, useState, ReactNode } from 'react';
 
 export type Profile = {
   id: string;
@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Don't clear localStorage to persist demo data
   };
 
-  const resetPassword = async (email: string) => {
+  const resetPassword = async () => {
     // Demo implementation
     return { error: null };
   };
@@ -136,10 +136,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}

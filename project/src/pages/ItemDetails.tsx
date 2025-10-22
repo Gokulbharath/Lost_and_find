@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Tag, Mail, Phone } from 'lucide-react';
-
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { mockDataService, LostItem, FoundItem } from '../lib/mockData';
 
 export default function ItemDetails() {
   const { type, id } = useParams<{ type: 'lost' | 'found'; id: string }>();
@@ -12,28 +12,25 @@ export default function ItemDetails() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const loadItem = async () => {
+      try {
+        if (type === 'lost') {
+          const data = await mockDataService.getLostItem(id!);
+          setItem(data);
+        } else if (type === 'found') {
+          const data = await mockDataService.getFoundItem(id!);
+          setItem(data);
+        }
+      } catch {
+        setItem(null);
+      } finally {
+        setLoading(false);
+      }
+    };
     if (type && id) {
       loadItem();
     }
   }, [type, id]);
-
-  const loadItem = async () => {
-    try {
-      const table = type === 'lost' ? 'lost_items' : 'found_items';
-      const { data, error } = await supabase
-        .from(table)
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-
-      if (error) throw error;
-      setItem(data);
-    } catch (error) {
-      console.error('Error loading item:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (

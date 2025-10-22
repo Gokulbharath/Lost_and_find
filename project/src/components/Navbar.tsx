@@ -1,10 +1,9 @@
 import { Moon, Sun, User, Search } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
-  const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
   const { user } = useAuth();
 
