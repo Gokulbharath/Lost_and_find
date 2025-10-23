@@ -1,13 +1,17 @@
 import { createContext, useEffect, useState, ReactNode } from 'react';
+import { auth } from '../lib/firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  sendPasswordResetEmail,
+  onAuthStateChanged,
+} from 'firebase/auth';
 
+// Only used for local profile editing (not persisted in Firebase)
 export type Profile = {
-  id: string;
-  email: string;
   full_name: string;
   phone: string | null;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
 };
 
 type User = {
@@ -21,14 +25,15 @@ type AuthContextType = {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, phone?: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
+
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -36,40 +41,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('user');
-    const savedProfile = localStorage.getItem('profile');
-    
-    if (savedUser && savedProfile) {
-      setUser(JSON.parse(savedUser));
-      setProfile(JSON.parse(savedProfile));
-    }
-    
-    setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      if (firebaseUser) {
+        setUser({ id: firebaseUser.uid, email: firebaseUser.email || '' });
+        setProfile(null); // Local only
+      } else {
+        setUser(null);
+        setProfile(null);
+      }
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, fullName: string, phone?: string) => {
+  const signUp = async (email: string, password: string) => {
     try {
-      const newUser = {
-        id: crypto.randomUUID(),
-        email,
-      };
-
-      const newProfile = {
-        id: newUser.id,
-        email,
-        full_name: fullName,
-        phone: phone || null,
-        avatar_url: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      localStorage.setItem('user', JSON.stringify(newUser));
-      localStorage.setItem('profile', JSON.stringify(newProfile));
-      localStorage.setItem(`password_${email}`, password); // For demo purposes only
-
-      setUser(newUser);
-      setProfile(newProfile);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      setUser({ id: firebaseUser.uid, email: firebaseUser.email || '' });
+      setProfile(null);
       return { error: null };
     } catch (error) {
       return { error: error as AuthError };
@@ -77,44 +67,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async (email: string, password: string) => {
-    const savedPassword = localStorage.getItem(`password_${email}`);
-    if (savedPassword === password) {
-      const savedUser = localStorage.getItem('user');
-      const savedProfile = localStorage.getItem('profile');
-      
-      if (savedUser && savedProfile) {
-        const user = JSON.parse(savedUser);
-        const profile = JSON.parse(savedProfile);
-        setUser(user);
-        setProfile(profile);
-        return { error: null };
-      }
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const firebaseUser = userCredential.user;
+      setUser({ id: firebaseUser.uid, email: firebaseUser.email || '' });
+      setProfile(null);
+      return { error: null };
+    } catch (error) {
+      return { error: error as AuthError };
     }
-    return { error: new Error('Invalid email or password') };
   };
 
   const signOut = async () => {
+    await firebaseSignOut(auth);
     setUser(null);
     setProfile(null);
-    // Don't clear localStorage to persist demo data
   };
 
-  const resetPassword = async () => {
-    // Demo implementation
-    return { error: null };
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+      return { error: null };
+    } catch (error) {
+      return { error: error as AuthError };
+    }
   };
 
+  // Local profile editing only
   const updateProfile = async (updates: Partial<Profile>) => {
     if (!user || !profile) return { error: new Error('No user logged in') };
-
     try {
       const updatedProfile = {
         ...profile,
         ...updates,
-        updated_at: new Date().toISOString(),
       };
-
-      localStorage.setItem('profile', JSON.stringify(updatedProfile));
       setProfile(updatedProfile);
       return { error: null };
     } catch (error) {

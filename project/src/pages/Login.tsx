@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { useToast } from '../components/Toast';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -54,7 +54,7 @@ export default function Login() {
         showToast('Login successful!', 'success');
         navigate('/');
       }
-    } catch (error) {
+    } catch {
       showToast('An unexpected error occurred', 'error');
     } finally {
       setLoading(false);

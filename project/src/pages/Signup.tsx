@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { useToast } from '../components/Toast';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -87,9 +87,7 @@ export default function Signup() {
     try {
       const { error } = await signUp(
         formData.email,
-        formData.password,
-        formData.fullName,
-        formData.phone
+        formData.password
       );
 
       if (error) {
@@ -98,7 +96,7 @@ export default function Signup() {
         showToast('Account created successfully!', 'success');
         navigate('/');
       }
-    } catch (error) {
+    } catch {
       showToast('An unexpected error occurred', 'error');
     } finally {
       setLoading(false);

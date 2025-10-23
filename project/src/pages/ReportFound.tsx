@@ -31,7 +31,7 @@ export default function ReportFound() {
     description: '',
     found_date: '',
     location: '',
-    contact_info: profile?.phone || profile?.email || '',
+  contact_info: profile?.phone || '',
   });
 
   const [errors, setErrors] = useState({
@@ -144,8 +144,8 @@ export default function ReportFound() {
 
       showToast('Found item reported successfully!', 'success');
       navigate('/');
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to report found item', 'error');
+    } catch {
+      showToast('Failed to report found item', 'error');
     } finally {
       setLoading(false);
     }

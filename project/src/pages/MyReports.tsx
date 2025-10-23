@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { mockDataService, LostItem, FoundItem } from '../lib/mockData';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';

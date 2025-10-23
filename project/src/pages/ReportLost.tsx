@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X } from 'lucide-react';
 import { mockDataService } from '../lib/mockData';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { useToast } from '../components/Toast';
 import { FormInput, FormTextArea, FormSelect } from '../components/FormInput';
 import Navbar from '../components/Navbar';
@@ -31,7 +31,7 @@ export default function ReportLost() {
     description: '',
     lost_date: '',
     location: '',
-    contact_info: profile?.phone || profile?.email || '',
+  contact_info: profile?.phone || '',
   });
 
   const [errors, setErrors] = useState({
@@ -145,8 +145,8 @@ export default function ReportLost() {
 
       showToast('Lost item reported successfully!', 'success');
       navigate('/');
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to report lost item', 'error');
+    } catch {
+      showToast('An unexpected error occurred', 'error');
     } finally {
       setLoading(false);
     }

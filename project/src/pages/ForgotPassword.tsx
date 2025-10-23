@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Mail, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/useAuth';
 import { useToast } from '../components/Toast';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function ForgotPassword() {
-  const navigate = useNavigate();
   const { resetPassword } = useAuth();
   const { showToast } = useToast();
   const [email, setEmail] = useState('');
@@ -42,7 +41,7 @@ export default function ForgotPassword() {
         setSubmitted(true);
         showToast('Password reset link sent to your email!', 'success');
       }
-    } catch (error) {
+    } catch {
       showToast('An unexpected error occurred', 'error');
     } finally {
       setLoading(false);

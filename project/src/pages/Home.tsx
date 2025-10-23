@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Upload, Bell, CheckCircle, Plus, PackageSearch } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { mockDataService, LostItem, FoundItem } from '../lib/mockData';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/useAuth';
 import { ItemCard } from '../components/ItemCard';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
