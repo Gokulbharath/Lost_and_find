@@ -1,10 +1,7 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-/**
- * Authentication middleware
- * Verifies JWT token and adds user to request object
- */
+
 const authenticateToken = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -17,10 +14,8 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Get user from database
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
@@ -37,7 +32,6 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    // Add user to request object
     req.user = user;
     next();
   } catch (error) {
@@ -63,10 +57,7 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-/**
- * Optional authentication middleware
- * Similar to authenticateToken but doesn't fail if no token is provided
- */
+
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers['authorization'];
@@ -83,7 +74,6 @@ const optionalAuth = async (req, res, next) => {
     
     next();
   } catch (error) {
-    // Continue without authentication if token is invalid
     next();
   }
 };

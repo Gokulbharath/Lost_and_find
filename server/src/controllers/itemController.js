@@ -2,11 +2,6 @@ const LostItem = require('../models/LostItem');
 const FoundItem = require('../models/FoundItem');
 const { asyncHandler } = require('../middlewares/errorHandler');
 
-/**
- * @desc    Get all lost items with pagination and filtering
- * @route   GET /api/items/lost
- * @access  Public
- */
 const getLostItems = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -15,12 +10,10 @@ const getLostItems = asyncHandler(async (req, res) => {
   const search = req.query.search;
   const status = req.query.status;
 
-  // Build filter
   const filter = { is_active: true };
   if (category) filter.category = category;
   if (status) filter.status = status;
 
-  // Build search query
   let query = LostItem.find(filter).populate('user_id', 'full_name email');
   
   if (search) {
@@ -54,11 +47,6 @@ const getLostItems = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Get all found items with pagination and filtering
- * @route   GET /api/items/found
- * @access  Public
- */
 const getFoundItems = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
@@ -67,12 +55,10 @@ const getFoundItems = asyncHandler(async (req, res) => {
   const search = req.query.search;
   const status = req.query.status;
 
-  // Build filter
   const filter = { is_active: true };
   if (category) filter.category = category;
   if (status) filter.status = status;
 
-  // Build search query
   let query = FoundItem.find(filter).populate('user_id', 'full_name email');
   
   if (search) {
@@ -106,11 +92,6 @@ const getFoundItems = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Get single lost item
- * @route   GET /api/items/lost/:id
- * @access  Public
- */
 const getLostItem = asyncHandler(async (req, res) => {
   const item = await LostItem.findById(req.params.id)
     .populate('user_id', 'full_name email phone');
@@ -128,11 +109,6 @@ const getLostItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Get single found item
- * @route   GET /api/items/found/:id
- * @access  Public
- */
 const getFoundItem = asyncHandler(async (req, res) => {
   const item = await FoundItem.findById(req.params.id)
     .populate('user_id', 'full_name email phone');
@@ -150,11 +126,6 @@ const getFoundItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Create new lost item
- * @route   POST /api/items/lost
- * @access  Private
- */
 const createLostItem = asyncHandler(async (req, res) => {
   const itemData = {
     ...req.body,
@@ -171,11 +142,6 @@ const createLostItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Create new found item
- * @route   POST /api/items/found
- * @access  Private
- */
 const createFoundItem = asyncHandler(async (req, res) => {
   const itemData = {
     ...req.body,
@@ -192,11 +158,6 @@ const createFoundItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Update lost item
- * @route   PUT /api/items/lost/:id
- * @access  Private
- */
 const updateLostItem = asyncHandler(async (req, res) => {
   const item = await LostItem.findById(req.params.id);
 
@@ -207,7 +168,6 @@ const updateLostItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check ownership
   if (!item.isOwner(req.user._id)) {
     return res.status(403).json({
       success: false,
@@ -228,11 +188,6 @@ const updateLostItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Update found item
- * @route   PUT /api/items/found/:id
- * @access  Private
- */
 const updateFoundItem = asyncHandler(async (req, res) => {
   const item = await FoundItem.findById(req.params.id);
 
@@ -243,7 +198,6 @@ const updateFoundItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check ownership
   if (!item.isOwner(req.user._id)) {
     return res.status(403).json({
       success: false,
@@ -264,11 +218,6 @@ const updateFoundItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Delete lost item
- * @route   DELETE /api/items/lost/:id
- * @access  Private
- */
 const deleteLostItem = asyncHandler(async (req, res) => {
   const item = await LostItem.findById(req.params.id);
 
@@ -279,7 +228,6 @@ const deleteLostItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check ownership
   if (!item.isOwner(req.user._id)) {
     return res.status(403).json({
       success: false,
@@ -287,7 +235,6 @@ const deleteLostItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Soft delete
   item.is_active = false;
   await item.save();
 
@@ -297,11 +244,6 @@ const deleteLostItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Delete found item
- * @route   DELETE /api/items/found/:id
- * @access  Private
- */
 const deleteFoundItem = asyncHandler(async (req, res) => {
   const item = await FoundItem.findById(req.params.id);
 
@@ -312,7 +254,6 @@ const deleteFoundItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Check ownership
   if (!item.isOwner(req.user._id)) {
     return res.status(403).json({
       success: false,
@@ -320,7 +261,6 @@ const deleteFoundItem = asyncHandler(async (req, res) => {
     });
   }
 
-  // Soft delete
   item.is_active = false;
   await item.save();
 
@@ -330,11 +270,7 @@ const deleteFoundItem = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Get user's lost items
- * @route   GET /api/items/my/lost
- * @access  Private
- */
+
 const getMyLostItems = asyncHandler(async (req, res) => {
   const items = await LostItem.find({ 
     user_id: req.user._id, 
@@ -347,11 +283,7 @@ const getMyLostItems = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Get user's found items
- * @route   GET /api/items/my/found
- * @access  Private
- */
+
 const getMyFoundItems = asyncHandler(async (req, res) => {
   const items = await FoundItem.find({ 
     user_id: req.user._id, 
@@ -364,11 +296,7 @@ const getMyFoundItems = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Search items
- * @route   GET /api/items/search
- * @access  Public
- */
+
 const searchItems = asyncHandler(async (req, res) => {
   const { q: query, type } = req.query;
 
@@ -414,11 +342,7 @@ const searchItems = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * @desc    Get statistics
- * @route   GET /api/items/stats
- * @access  Public
- */
+
 const getStats = asyncHandler(async (req, res) => {
   const [totalLost, totalFound, totalReturned] = await Promise.all([
     LostItem.countDocuments({ is_active: true }),

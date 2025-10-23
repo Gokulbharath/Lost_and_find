@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-/**
- * MongoDB connection configuration
- * Handles connection to MongoDB database using Mongoose
- */
 const connectDB = async () => {
   try {
     const uri = "mongodb+srv://muthumanikandan11mk:Mk11%402004@mycluster.1gybapu.mongodb.net/?retryWrites=true&w=majority&appName=MyCluster";

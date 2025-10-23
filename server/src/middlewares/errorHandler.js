@@ -1,34 +1,25 @@
-/**
- * Global error handling middleware
- * Handles all errors in the application and provides consistent error responses
- */
 const errorHandler = (err, req, res, next) => {
   let error = { ...err };
   error.message = err.message;
 
-  // Log error for debugging
   console.error('Error:', err);
 
-  // Mongoose bad ObjectId
   if (err.name === 'CastError') {
     const message = 'Resource not found';
     error = { message, statusCode: 404 };
   }
 
-  // Mongoose duplicate key
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue)[0];
     const message = `${field} already exists`;
     error = { message, statusCode: 400 };
   }
 
-  // Mongoose validation error
   if (err.name === 'ValidationError') {
     const message = Object.values(err.errors).map(val => val.message).join(', ');
     error = { message, statusCode: 400 };
   }
 
-  // JWT errors
   if (err.name === 'JsonWebTokenError') {
     const message = 'Invalid token';
     error = { message, statusCode: 401 };
@@ -39,7 +30,6 @@ const errorHandler = (err, req, res, next) => {
     error = { message, statusCode: 401 };
   }
 
-  // Default error response
   const statusCode = error.statusCode || 500;
   const message = error.message || 'Internal Server Error';
 
@@ -50,19 +40,12 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-/**
- * 404 handler for undefined routes
- */
 const notFound = (req, res, next) => {
   const error = new Error(`Route ${req.originalUrl} not found`);
   error.statusCode = 404;
   next(error);
 };
 
-/**
- * Async error handler wrapper
- * Catches async errors and passes them to error handler
- */
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };

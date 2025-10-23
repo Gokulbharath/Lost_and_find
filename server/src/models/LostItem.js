@@ -1,9 +1,6 @@
 const mongoose = require('mongoose');
 
-/**
- * Lost Item Schema
- * Represents items that have been lost and reported by users
- */
+
 const lostItemSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -75,19 +72,16 @@ const lostItemSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for better query performance
 lostItemSchema.index({ user_id: 1 });
 lostItemSchema.index({ status: 1 });
 lostItemSchema.index({ category: 1 });
 lostItemSchema.index({ created_at: -1 });
 lostItemSchema.index({ title: 'text', description: 'text', location: 'text' });
 
-// Virtual for item ID
 lostItemSchema.virtual('id').get(function() {
   return this._id.toHexString();
 });
 
-// Instance method to check if user owns the item
 lostItemSchema.methods.isOwner = function(userId) {
   return this.user_id.toString() === userId.toString();
 };

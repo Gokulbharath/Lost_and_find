@@ -50,11 +50,13 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 
-// Root endpoint
+app.get('/', (req, res) => {
+  res.send("Hello world!");
+});
+
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -68,12 +70,6 @@ app.get('/', (req, res) => {
     documentation: 'API documentation will be available soon'
   });
 });
-
-// 404 handler
-app.use(notFound);
-
-// Error handling middleware (must be last)
-app.use(errorHandler);
 
 module.exports = app;
 

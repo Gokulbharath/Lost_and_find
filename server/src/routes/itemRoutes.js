@@ -22,7 +22,6 @@ const { handleValidationErrors } = require('../middlewares/validationMiddleware'
 
 const router = express.Router();
 
-// Validation rules
 const itemValidation = [
   body('title')
     .trim()
@@ -151,102 +150,33 @@ const idValidation = [
     .withMessage('Invalid item ID')
 ];
 
-/**
- * @route   GET /api/items/lost
- * @desc    Get all lost items with pagination and filtering
- * @access  Public
- */
+
 router.get('/lost', optionalAuth, asyncHandler(getLostItems));
 
-/**
- * @route   GET /api/items/found
- * @desc    Get all found items with pagination and filtering
- * @access  Public
- */
 router.get('/found', optionalAuth, asyncHandler(getFoundItems));
 
-/**
- * @route   GET /api/items/lost/:id
- * @desc    Get single lost item
- * @access  Public
- */
 router.get('/lost/:id', idValidation, optionalAuth, asyncHandler(getLostItem));
 
-/**
- * @route   GET /api/items/found/:id
- * @desc    Get single found item
- * @access  Public
- */
 router.get('/found/:id', idValidation, optionalAuth, asyncHandler(getFoundItem));
 
-/**
- * @route   POST /api/items/lost
- * @desc    Create new lost item
- * @access  Private
- */
 router.post('/lost', authenticateToken, lostItemValidation, handleValidationErrors, asyncHandler(createLostItem));
 
-/**
- * @route   POST /api/items/found
- * @desc    Create new found item
- * @access  Private
- */
 router.post('/found', authenticateToken, foundItemValidation, handleValidationErrors, asyncHandler(createFoundItem));
 
-/**
- * @route   PUT /api/items/lost/:id
- * @desc    Update lost item
- * @access  Private
- */
 router.put('/lost/:id', authenticateToken, idValidation, updateItemValidation, handleValidationErrors, asyncHandler(updateLostItem));
 
-/**
- * @route   PUT /api/items/found/:id
- * @desc    Update found item
- * @access  Private
- */
 router.put('/found/:id', authenticateToken, idValidation, foundItemUpdateValidation, handleValidationErrors, asyncHandler(updateFoundItem));
 
-/**
- * @route   DELETE /api/items/lost/:id
- * @desc    Delete lost item
- * @access  Private
- */
 router.delete('/lost/:id', authenticateToken, idValidation, asyncHandler(deleteLostItem));
 
-/**
- * @route   DELETE /api/items/found/:id
- * @desc    Delete found item
- * @access  Private
- */
 router.delete('/found/:id', authenticateToken, idValidation, asyncHandler(deleteFoundItem));
 
-/**
- * @route   GET /api/items/my/lost
- * @desc    Get user's lost items
- * @access  Private
- */
 router.get('/my/lost', authenticateToken, asyncHandler(getMyLostItems));
 
-/**
- * @route   GET /api/items/my/found
- * @desc    Get user's found items
- * @access  Private
- */
 router.get('/my/found', authenticateToken, asyncHandler(getMyFoundItems));
 
-/**
- * @route   GET /api/items/search
- * @desc    Search items
- * @access  Public
- */
 router.get('/search', optionalAuth, asyncHandler(searchItems));
 
-/**
- * @route   GET /api/items/stats
- * @desc    Get statistics
- * @access  Public
- */
 router.get('/stats', asyncHandler(getStats));
 
 module.exports = router;

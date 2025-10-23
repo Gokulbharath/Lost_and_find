@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 
-/**
- * Found Item Schema
- * Represents items that have been found and reported by users
- */
 const foundItemSchema = new mongoose.Schema({
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
@@ -75,19 +71,16 @@ const foundItemSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Indexes for better query performance
 foundItemSchema.index({ user_id: 1 });
 foundItemSchema.index({ status: 1 });
 foundItemSchema.index({ category: 1 });
 foundItemSchema.index({ created_at: -1 });
 foundItemSchema.index({ title: 'text', description: 'text', location: 'text' });
 
-// Virtual for item ID
 foundItemSchema.virtual('id').get(function() {
   return this._id.toHexString();
 });
 
-// Instance method to check if user owns the item
 foundItemSchema.methods.isOwner = function(userId) {
   return this.user_id.toString() === userId.toString();
 };
