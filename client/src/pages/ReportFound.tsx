@@ -143,8 +143,10 @@ export default function ReportFound() {
 
       showToast('Found item reported successfully!', 'success');
       navigate('/');
-    } catch {
-      showToast('Failed to report found item', 'error');
+    } catch (error: any) {
+      console.error('Error creating found item:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to report found item';
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }

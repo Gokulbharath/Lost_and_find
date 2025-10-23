@@ -44,8 +44,17 @@ const itemValidation = [
     .withMessage('Contact information must be between 5 and 500 characters'),
   body('image_url')
     .optional()
-    .isURL()
-    .withMessage('Please provide a valid image URL')
+    .custom((value) => {
+      if (value === null || value === undefined || value === '') {
+        return true; // Allow null, undefined, or empty string
+      }
+      // If value exists, validate it as URL
+      const urlRegex = /^https?:\/\/.+/;
+      if (!urlRegex.test(value)) {
+        throw new Error('Please provide a valid image URL');
+      }
+      return true;
+    })
 ];
 
 const lostItemValidation = [
@@ -101,8 +110,17 @@ const updateItemValidation = [
     .withMessage('Contact information must be between 5 and 500 characters'),
   body('image_url')
     .optional()
-    .isURL()
-    .withMessage('Please provide a valid image URL'),
+    .custom((value) => {
+      if (value === null || value === undefined || value === '') {
+        return true; // Allow null, undefined, or empty string
+      }
+      // If value exists, validate it as URL
+      const urlRegex = /^https?:\/\/.+/;
+      if (!urlRegex.test(value)) {
+        throw new Error('Please provide a valid image URL');
+      }
+      return true;
+    }),
   body('status')
     .optional()
     .isIn(['lost', 'found', 'closed'])
@@ -136,8 +154,17 @@ const foundItemUpdateValidation = [
     .withMessage('Contact information must be between 5 and 500 characters'),
   body('image_url')
     .optional()
-    .isURL()
-    .withMessage('Please provide a valid image URL'),
+    .custom((value) => {
+      if (value === null || value === undefined || value === '') {
+        return true; // Allow null, undefined, or empty string
+      }
+      // If value exists, validate it as URL
+      const urlRegex = /^https?:\/\/.+/;
+      if (!urlRegex.test(value)) {
+        throw new Error('Please provide a valid image URL');
+      }
+      return true;
+    }),
   body('status')
     .optional()
     .isIn(['available', 'returned', 'closed'])

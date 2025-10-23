@@ -11,6 +11,7 @@ const {
 const { authenticateToken } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../middlewares/errorHandler');
 const { handleValidationErrors } = require('../middlewares/validationMiddleware');
+const User = require('../models/User');
 
 const router = express.Router();
 
@@ -66,6 +67,7 @@ const changePasswordValidation = [
     .isLength({ min: 6 })
     .withMessage('New password must be at least 6 characters long')
 ];
+
 
 router.post('/register', registerValidation, handleValidationErrors, asyncHandler(register));
 

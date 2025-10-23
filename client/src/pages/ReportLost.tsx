@@ -144,8 +144,10 @@ export default function ReportLost() {
 
       showToast('Lost item reported successfully!', 'success');
       navigate('/');
-    } catch {
-      showToast('An unexpected error occurred', 'error');
+    } catch (error: any) {
+      console.error('Error creating lost item:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'An unexpected error occurred';
+      showToast(errorMessage, 'error');
     } finally {
       setLoading(false);
     }
