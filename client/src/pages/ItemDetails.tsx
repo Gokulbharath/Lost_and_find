@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Calendar, MapPin, Tag, Mail, Phone } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { mockDataService, LostItem, FoundItem } from '../lib/mockData';
+import { LostItem, FoundItem } from '../lib/mockData';
+import { itemsAPI } from '../api/api';
 
 export default function ItemDetails() {
   const { type, id } = useParams<{ type: 'lost' | 'found'; id: string }>();
@@ -15,11 +16,11 @@ export default function ItemDetails() {
     const loadItem = async () => {
       try {
         if (type === 'lost') {
-          const data = await mockDataService.getLostItem(id!);
-          setItem(data);
+          const res = await itemsAPI.getLost(id!);
+          setItem(res.data.data.item);
         } else if (type === 'found') {
-          const data = await mockDataService.getFoundItem(id!);
-          setItem(data);
+          const res = await itemsAPI.getFound(id!);
+          setItem(res.data.data.item);
         }
       } catch {
         setItem(null);

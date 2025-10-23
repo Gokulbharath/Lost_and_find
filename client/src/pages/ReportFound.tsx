@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Upload, X } from 'lucide-react';
-import { mockDataService } from '../lib/mockData';
+import { itemsAPI } from '../api/api';
 import { useAuth } from '../contexts/useAuth';
 import { useToast } from '../components/Toast';
 import { FormInput, FormTextArea, FormSelect } from '../components/FormInput';
@@ -130,8 +130,7 @@ export default function ReportFound() {
         });
       }
 
-      await mockDataService.addFoundItem({
-        user_id: user.id,
+      await itemsAPI.createFound({
         title: formData.title,
         category: formData.category as 'Electronics' | 'Books' | 'ID Cards' | 'Clothing' | 'Others',
         description: formData.description,

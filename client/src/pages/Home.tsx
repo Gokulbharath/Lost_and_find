@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Upload, Bell, CheckCircle, Plus, PackageSearch } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { mockDataService, LostItem, FoundItem } from '../lib/mockData';
+import { LostItem, FoundItem } from '../lib/mockData';
+import { itemsAPI } from '../api/api';
 import { useAuth } from '../contexts/useAuth';
 import { ItemCard } from '../components/ItemCard';
 import Navbar from '../components/Navbar';
@@ -25,16 +26,14 @@ export default function Home() {
 
   const loadData = async () => {
     try {
-      const [lostData, foundData] = await Promise.all([
-        mockDataService.getLostItems(4),
-        mockDataService.getFoundItems(4),
+      const [lostRes, foundRes, statsRes] = await Promise.all([
+        itemsAPI.listLost({ limit: 4 }),
+        itemsAPI.listFound({ limit: 4 }),
+        itemsAPI.stats(),
       ]);
-
-      setLostItems(lostData);
-      setFoundItems(foundData);
-
-      const stats = await mockDataService.getStats();
-      setStats(stats);
+      setLostItems(lostRes.data.data.items);
+      setFoundItems(foundRes.data.data.items);
+      setStats(statsRes.data.data);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {

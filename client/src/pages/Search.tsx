@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Filter, PackageSearch } from 'lucide-react';
 import { SearchBar } from '../components/SearchBar';
 import { ItemCard } from '../components/ItemCard';
+import { itemsAPI } from '../api/api';
+import type { LostItem, FoundItem } from '../lib/mockData';
 import { FormSelect } from '../components/FormInput';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -40,12 +42,11 @@ export default function Search() {
   const loadItems = async () => {
     try {
       const [lostRes, foundRes] = await Promise.all([
-        supabase.from('lost_items').select('*').order('created_at', { ascending: false }),
-        supabase.from('found_items').select('*').order('created_at', { ascending: false }),
+        itemsAPI.listLost({ limit: 100 }),
+        itemsAPI.listFound({ limit: 100 }),
       ]);
-
-      if (lostRes.data) setLostItems(lostRes.data);
-      if (foundRes.data) setFoundItems(foundRes.data);
+      setLostItems(lostRes.data.data.items);
+      setFoundItems(foundRes.data.data.items);
     } catch (error) {
       console.error('Error loading items:', error);
     } finally {

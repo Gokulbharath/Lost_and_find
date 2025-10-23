@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/useAuth';
-import { mockDataService, LostItem, FoundItem } from '../lib/mockData';
+import { LostItem, FoundItem } from '../lib/mockData';
+import { itemsAPI } from '../api/api';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { ItemCard } from '../components/ItemCard';
@@ -15,10 +16,12 @@ export default function MyReports() {
     if (!user) return;
     const fetchReports = async () => {
       setLoading(true);
-      const allLost = await mockDataService.getLostItems();
-      const allFound = await mockDataService.getFoundItems();
-      setLostItems(allLost.filter(item => item.user_id === user.id));
-      setFoundItems(allFound.filter(item => item.user_id === user.id));
+      const [lostRes, foundRes] = await Promise.all([
+        itemsAPI.myLost(),
+        itemsAPI.myFound(),
+      ]);
+      setLostItems(lostRes.data.data.items);
+      setFoundItems(foundRes.data.data.items);
       setLoading(false);
     };
     fetchReports();

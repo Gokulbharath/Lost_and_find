@@ -1,5 +1,5 @@
 import { Calendar, MapPin, Tag } from 'lucide-react';
-import { LostItem, FoundItem } from '../lib/supabase';
+import { LostItem, FoundItem } from '../lib/mockData';
 
 type ItemCardProps = {
   item: LostItem | FoundItem;
