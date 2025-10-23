@@ -54,10 +54,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
 
 app.get('/', (req, res) => {
-  res.send("Hello world!");
-});
-
-app.get('/', (req, res) => {
   res.json({
     success: true,
     message: 'Lost and Found API',

@@ -47,7 +47,6 @@ const userSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-userSchema.index({ email: 1 });
 userSchema.index({ created_at: -1 });
 
 userSchema.pre('save', async function(next) {
