@@ -14,11 +14,13 @@ const {
   getMyLostItems,
   getMyFoundItems,
   searchItems,
-  getStats
+  getStats,
+  getRecentItems
 } = require('../controllers/itemController');
 const { authenticateToken, optionalAuth } = require('../middlewares/authMiddleware');
 const { asyncHandler } = require('../middlewares/errorHandler');
 const { handleValidationErrors } = require('../middlewares/validationMiddleware');
+const upload = require('../middlewares/uploadMiddleware');
 
 const router = express.Router();
 
@@ -186,9 +188,9 @@ router.get('/lost/:id', idValidation, optionalAuth, asyncHandler(getLostItem));
 
 router.get('/found/:id', idValidation, optionalAuth, asyncHandler(getFoundItem));
 
-router.post('/lost', authenticateToken, lostItemValidation, handleValidationErrors, asyncHandler(createLostItem));
+router.post('/lost', authenticateToken, upload.single('image'), lostItemValidation, handleValidationErrors, asyncHandler(createLostItem));
 
-router.post('/found', authenticateToken, foundItemValidation, handleValidationErrors, asyncHandler(createFoundItem));
+router.post('/found', authenticateToken, upload.single('image'), foundItemValidation, handleValidationErrors, asyncHandler(createFoundItem));
 
 router.put('/lost/:id', authenticateToken, idValidation, updateItemValidation, handleValidationErrors, asyncHandler(updateLostItem));
 
@@ -205,5 +207,7 @@ router.get('/my/found', authenticateToken, asyncHandler(getMyFoundItems));
 router.get('/search', optionalAuth, asyncHandler(searchItems));
 
 router.get('/stats', asyncHandler(getStats));
+
+router.get('/recent', optionalAuth, asyncHandler(getRecentItems));
 
 module.exports = router;

@@ -51,8 +51,34 @@ export const itemsAPI = {
   listFound: (params?: { page?: number; limit?: number; category?: string; status?: string; search?: string }) => API.get('/api/items/found', { params }),
   getLost: (id: string) => API.get(`/api/items/lost/${id}`),
   getFound: (id: string) => API.get(`/api/items/found/${id}`),
-  createLost: (data: LostItemPayload) => API.post('/api/items/lost', data),
-  createFound: (data: FoundItemPayload) => API.post('/api/items/found', data),
+  createLost: (data: LostItemPayload, image?: File) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
+    });
+    if (image) {
+      formData.append('image', image);
+    }
+    return API.post('/api/items/lost', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+  createFound: (data: FoundItemPayload, image?: File) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        formData.append(key, value);
+      }
+    });
+    if (image) {
+      formData.append('image', image);
+    }
+    return API.post('/api/items/found', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
   updateLost: (id: string, data: Partial<LostItemPayload>) => API.put(`/api/items/lost/${id}`, data),
   updateFound: (id: string, data: Partial<FoundItemPayload>) => API.put(`/api/items/found/${id}`, data),
   deleteLost: (id: string) => API.delete(`/api/items/lost/${id}`),
@@ -61,4 +87,5 @@ export const itemsAPI = {
   myFound: () => API.get('/api/items/my/found'),
   search: (q: string, type?: 'lost' | 'found') => API.get('/api/items/search', { params: { q, type } }),
   stats: () => API.get('/api/items/stats'),
+  recent: () => API.get('/api/items/recent'),
 };

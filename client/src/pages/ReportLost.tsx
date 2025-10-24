@@ -115,22 +115,6 @@ export default function ReportLost() {
 
     setLoading(true);
     try {
-      let imageUrl = null;
-
-      if (imageFile) {
-        // In a real app, we would upload the image to a storage service
-        // For this demo, we'll just convert it to a data URL
-        const reader = new FileReader();
-        await new Promise<void>((resolve, reject) => {
-          reader.onload = () => {
-            imageUrl = reader.result as string;
-            resolve();
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
       await itemsAPI.createLost({
         title: formData.title,
         category: formData.category as 'Electronics' | 'Books' | 'ID Cards' | 'Clothing' | 'Others',
@@ -138,9 +122,8 @@ export default function ReportLost() {
         lost_date: formData.lost_date,
         location: formData.location,
         contact_info: formData.contact_info,
-        image_url: imageUrl,
         status: 'lost',
-      });
+      }, imageFile || undefined);
 
       showToast('Lost item reported successfully!', 'success');
       navigate('/');

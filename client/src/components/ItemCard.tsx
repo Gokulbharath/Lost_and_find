@@ -19,9 +19,9 @@ export function ItemCard({ item, type, onClick }: ItemCardProps) {
       className="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden group"
     >
       <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
-        {item.image_url ? (
+        {(item as any).image ? (
           <img
-            src={item.image_url}
+            src={(item as any).image}
             alt={item.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />

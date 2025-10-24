@@ -26,13 +26,12 @@ export default function Home() {
 
   const loadData = async () => {
     try {
-      const [lostRes, foundRes, statsRes] = await Promise.all([
-        itemsAPI.listLost({ limit: 4 }),
-        itemsAPI.listFound({ limit: 4 }),
+      const [recentRes, statsRes] = await Promise.all([
+        itemsAPI.recent(),
         itemsAPI.stats(),
       ]);
-      setLostItems(lostRes.data.data.items);
-      setFoundItems(foundRes.data.data.items);
+      setLostItems(recentRes.data.data.items.filter((item: any) => item.type === 'lost'));
+      setFoundItems(recentRes.data.data.items.filter((item: any) => item.type === 'found'));
       setStats(statsRes.data.data);
     } catch (error) {
       console.error('Error loading data:', error);
@@ -44,7 +43,7 @@ export default function Home() {
   const allItems = [
     ...lostItems.map(item => ({ ...item, type: 'lost' as const })),
     ...foundItems.map(item => ({ ...item, type: 'found' as const })),
-  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8);
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
@@ -125,8 +124,8 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
               <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-md h-80 animate-pulse">
                 <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-t-xl"></div>
                 <div className="p-4 space-y-3">
@@ -137,7 +136,7 @@ export default function Home() {
             ))}
           </div>
         ) : allItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {allItems.map((item) => (
               <ItemCard
                 key={`${item.type}-${item.id}`}

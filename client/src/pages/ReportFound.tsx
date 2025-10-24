@@ -115,21 +115,6 @@ export default function ReportFound() {
 
     setLoading(true);
     try {
-      let imageUrl = null;
-
-      if (imageFile) {
-        // Convert image to data URL for demo
-        const reader = new FileReader();
-        await new Promise<void>((resolve, reject) => {
-          reader.onload = () => {
-            imageUrl = reader.result as string;
-            resolve();
-          };
-          reader.onerror = reject;
-          reader.readAsDataURL(imageFile);
-        });
-      }
-
       await itemsAPI.createFound({
         title: formData.title,
         category: formData.category as 'Electronics' | 'Books' | 'ID Cards' | 'Clothing' | 'Others',
@@ -137,9 +122,8 @@ export default function ReportFound() {
         found_date: formData.found_date,
         location: formData.location,
         contact_info: formData.contact_info,
-        image_url: imageUrl,
         status: 'available',
-      });
+      }, imageFile || undefined);
 
       showToast('Found item reported successfully!', 'success');
       navigate('/');

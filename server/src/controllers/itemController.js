@@ -1,6 +1,28 @@
 const LostItem = require('../models/LostItem');
 const FoundItem = require('../models/FoundItem');
+const Image = require('../models/Image');
 const { asyncHandler } = require('../middlewares/errorHandler');
+
+// Helper function to add image data to items
+const addImageToItems = async (items, itemType) => {
+  const itemsWithImages = await Promise.all(
+    items.map(async (item) => {
+      const image = await Image.findOne({ 
+        itemId: item._id, 
+        itemType: itemType 
+      });
+      
+      if (image) {
+        const base64Image = `data:${image.contentType};base64,${image.data.toString('base64')}`;
+        return { ...item.toObject(), image: base64Image };
+      }
+      
+      return { ...item.toObject(), image: null };
+    })
+  );
+  
+  return itemsWithImages;
+};
 
 const getLostItems = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -32,11 +54,14 @@ const getLostItems = asyncHandler(async (req, res) => {
     .limit(limit);
 
   const total = await LostItem.countDocuments(filter);
+  
+  // Add images to items
+  const itemsWithImages = await addImageToItems(items, 'LostItem');
 
   res.json({
     success: true,
     data: {
-      items,
+      items: itemsWithImages,
       pagination: {
         current_page: page,
         total_pages: Math.ceil(total / limit),
@@ -77,11 +102,14 @@ const getFoundItems = asyncHandler(async (req, res) => {
     .limit(limit);
 
   const total = await FoundItem.countDocuments(filter);
+  
+  // Add images to items
+  const itemsWithImages = await addImageToItems(items, 'FoundItem');
 
   res.json({
     success: true,
     data: {
-      items,
+      items: itemsWithImages,
       pagination: {
         current_page: page,
         total_pages: Math.ceil(total / limit),
@@ -103,9 +131,13 @@ const getLostItem = asyncHandler(async (req, res) => {
     });
   }
 
+  // Add image to item
+  const itemsWithImages = await addImageToItems([item], 'LostItem');
+  const itemWithImage = itemsWithImages[0];
+
   res.json({
     success: true,
-    data: { item }
+    data: { item: itemWithImage }
   });
 });
 
@@ -120,9 +152,13 @@ const getFoundItem = asyncHandler(async (req, res) => {
     });
   }
 
+  // Add image to item
+  const itemsWithImages = await addImageToItems([item], 'FoundItem');
+  const itemWithImage = itemsWithImages[0];
+
   res.json({
     success: true,
-    data: { item }
+    data: { item: itemWithImage }
   });
 });
 
@@ -135,10 +171,25 @@ const createLostItem = asyncHandler(async (req, res) => {
   const item = await LostItem.create(itemData);
   await item.populate('user_id', 'full_name email');
 
+  // Handle image upload if present
+  if (req.file) {
+    const imageDoc = new Image({
+      itemId: item._id,
+      itemType: 'LostItem',
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+    });
+    await imageDoc.save();
+  }
+
+  // Add image to response
+  const itemsWithImages = await addImageToItems([item], 'LostItem');
+  const itemWithImage = itemsWithImages[0];
+
   res.status(201).json({
     success: true,
     message: 'Lost item created successfully',
-    data: { item }
+    data: { item: itemWithImage }
   });
 });
 
@@ -151,10 +202,25 @@ const createFoundItem = asyncHandler(async (req, res) => {
   const item = await FoundItem.create(itemData);
   await item.populate('user_id', 'full_name email');
 
+  // Handle image upload if present
+  if (req.file) {
+    const imageDoc = new Image({
+      itemId: item._id,
+      itemType: 'FoundItem',
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+    });
+    await imageDoc.save();
+  }
+
+  // Add image to response
+  const itemsWithImages = await addImageToItems([item], 'FoundItem');
+  const itemWithImage = itemsWithImages[0];
+
   res.status(201).json({
     success: true,
     message: 'Found item created successfully',
-    data: { item }
+    data: { item: itemWithImage }
   });
 });
 
@@ -360,6 +426,48 @@ const getStats = asyncHandler(async (req, res) => {
   });
 });
 
+const getRecentItems = asyncHandler(async (req, res) => {
+  // Get 3 most recent lost items
+  const recentLostItems = await LostItem.find({ is_active: true })
+    .populate('user_id', 'full_name email')
+    .sort({ created_at: -1 })
+    .limit(3);
+
+  // Get 3 most recent found items
+  const recentFoundItems = await FoundItem.find({ is_active: true })
+    .populate('user_id', 'full_name email')
+    .sort({ created_at: -1 })
+    .limit(3);
+
+  // Combine and sort by creation date
+  const allRecentItems = [
+    ...recentLostItems.map(item => ({ ...item.toObject(), type: 'lost' })),
+    ...recentFoundItems.map(item => ({ ...item.toObject(), type: 'found' }))
+  ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 3);
+
+  // Add images to items
+  const itemsWithImages = await Promise.all(
+    allRecentItems.map(async (item) => {
+      const image = await Image.findOne({ 
+        itemId: item._id, 
+        itemType: item.type === 'lost' ? 'LostItem' : 'FoundItem'
+      });
+      
+      if (image) {
+        const base64Image = `data:${image.contentType};base64,${image.data.toString('base64')}`;
+        return { ...item, image: base64Image };
+      }
+      
+      return { ...item, image: null };
+    })
+  );
+
+  res.json({
+    success: true,
+    data: { items: itemsWithImages }
+  });
+});
+
 module.exports = {
   getLostItems,
   getFoundItems,
@@ -374,6 +482,7 @@ module.exports = {
   getMyLostItems,
   getMyFoundItems,
   searchItems,
-  getStats
+  getStats,
+  getRecentItems
 };
 
