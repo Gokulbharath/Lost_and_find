@@ -1,4 +1,4 @@
-import { Moon, Sun, User, Search } from 'lucide-react';
+import { Moon, Sun, User, Search, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/useAuth';
@@ -22,13 +22,25 @@ export default function Navbar() {
 
           <div className="flex items-center space-x-4">
             {user && (
-              <Link
-                to="/search"
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
-                aria-label="Search"
-              >
-                <Search className="w-5 h-5 text-gray-600 dark:text-gray-300" />
-              </Link>
+              <>
+                <Link
+                  to="/search"
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                </Link>
+
+                {user.isAdmin && (
+                  <Link
+                    to="/admin"
+                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200"
+                    aria-label="Admin Dashboard"
+                  >
+                    <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </Link>
+                )}
+              </>
             )}
 
             <button

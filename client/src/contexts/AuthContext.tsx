@@ -1,18 +1,6 @@
 import { createContext, useEffect, useState, ReactNode } from 'react';
 import { authAPI } from '../api/api';
-
-// Only used for local profile editing (not persisted in Firebase)
-export type Profile = {
-  full_name: string;
-  phone: string | null;
-};
-
-type User = {
-  id: string;
-  email: string;
-};
-
-type AuthError = Error;
+import { User, Profile, AuthError } from '../types/auth';
 
 type AuthContextType = {
   user: User | null;
@@ -40,7 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (token) {
           const res = await authAPI.profile();
           const u = res.data.data.user;
-          setUser({ id: u.id || u._id, email: u.email });
+          setUser({ 
+            id: u.id || u._id, 
+            email: u.email,
+            isAdmin: u.isAdmin || false
+          });
           setProfile({ full_name: u.full_name, phone: u.phone || null });
         } else {
           setUser(null);
@@ -62,7 +54,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await authAPI.register({ email, password, full_name });
       const { token, user: u } = res.data.data;
       localStorage.setItem('token', token);
-      setUser({ id: u.id || u._id, email: u.email });
+      setUser({ 
+        id: u.id || u._id, 
+        email: u.email,
+        isAdmin: u.isAdmin || false
+      });
       setProfile({ full_name: u.full_name, phone: u.phone || null });
       return { error: null };
     } catch (error) {
@@ -75,7 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await authAPI.login({ email, password });
       const { token, user: u } = res.data.data;
       localStorage.setItem('token', token);
-      setUser({ id: u.id || u._id, email: u.email });
+      setUser({ 
+        id: u.id || u._id, 
+        email: u.email,
+        isAdmin: u.isAdmin || false
+      });
       setProfile({ full_name: u.full_name, phone: u.phone || null });
       return { error: null };
     } catch (error) {
@@ -84,15 +84,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
-    try { await authAPI.logout(); } catch {}
+    try { 
+      await authAPI.logout(); 
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     localStorage.removeItem('token');
     setUser(null);
     setProfile(null);
   };
 
   const resetPassword = async (email: string) => {
-    // Backend reset password not implemented; no-op for now
-    return { error: null };
+    try {
+      // Backend reset password not implemented yet
+      console.info('Reset password requested for:', email);
+      return { error: null };
+    } catch (error) {
+      return { error: error as AuthError };
+    }
   };
 
   // Local profile editing only
