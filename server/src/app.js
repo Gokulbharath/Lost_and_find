@@ -1,15 +1,15 @@
-const express = require('express');
-const cors = require('cors');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
 
-// Import routes
-const authRoutes = require('./routes/authRoutes');
-const itemRoutes = require('./routes/itemRoutes');
+import authRoutes from './routes/authRoutes.js';
+import itemRoutes from './routes/itemRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import { errorHandler, notFound } from './middlewares/errorHandler.js';
 
-// Import middleware
-const { errorHandler, notFound } = require('./middlewares/errorHandler');
+dotenv.config();
 
 const app = express();
 
@@ -19,7 +19,7 @@ app.use(helmet());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 100,
   message: {
     success: false,
     message: 'Too many requests from this IP, please try again later.'
@@ -27,20 +27,20 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Simplified CORS for development
-app.use(cors({ origin: '*'}));
+// CORS
+app.use(cors({ origin: '*' }));
 
-// Body parsing middleware
+// Body parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging middleware
+// Request logging
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path} - ${req.ip}`);
   next();
 });
 
-// Health check endpoint
+// Health check
 app.get('/health', (req, res) => {
   res.json({
     success: true,
@@ -50,9 +50,12 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/items', itemRoutes);
+app.use('/api/admin', adminRoutes);
 
+// Default route
 app.get('/', (req, res) => {
   res.json({
     success: true,
@@ -67,5 +70,7 @@ app.get('/', (req, res) => {
   });
 });
 
-module.exports = app;
+app.use(notFound);
+app.use(errorHandler);
 
+export default app;

@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-
+import mongoose from 'mongoose';
 
 const lostItemSchema = new mongoose.Schema({
   user_id: {
@@ -86,5 +85,5 @@ lostItemSchema.methods.isOwner = function(userId) {
   return this.user_id.toString() === userId.toString();
 };
 
-module.exports = mongoose.model('LostItem', lostItemSchema);
-
+const LostItem = mongoose.model('LostItem', lostItemSchema);
+export default LostItem;

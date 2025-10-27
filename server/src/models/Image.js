@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const imageSchema = new mongoose.Schema({
   itemId: { 
@@ -26,4 +26,5 @@ imageSchema.virtual('id').get(function() {
   return this._id.toHexString();
 });
 
-module.exports = mongoose.model('Image', imageSchema);
+const Image = mongoose.model('Image', imageSchema);
+export default Image;

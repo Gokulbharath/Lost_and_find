@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const foundItemSchema = new mongoose.Schema({
   user_id: {
@@ -85,5 +85,5 @@ foundItemSchema.methods.isOwner = function(userId) {
   return this.user_id.toString() === userId.toString();
 };
 
-module.exports = mongoose.model('FoundItem', foundItemSchema);
-
+const FoundItem = mongoose.model('FoundItem', foundItemSchema);
+export default FoundItem;

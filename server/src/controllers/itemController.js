@@ -1,7 +1,7 @@
-const LostItem = require('../models/LostItem');
-const FoundItem = require('../models/FoundItem');
-const Image = require('../models/Image');
-const { asyncHandler } = require('../middlewares/errorHandler');
+import LostItem from '../models/LostItem.js';
+import FoundItem from '../models/FoundItem.js';
+import Image from '../models/Image.js';
+import { asyncHandler } from '../middlewares/errorHandler.js';
 
 // Helper function to add image data to items
 const addImageToItems = async (items, itemType) => {
@@ -468,7 +468,7 @@ const getRecentItems = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = {
+export {
   getLostItems,
   getFoundItems,
   getLostItem,

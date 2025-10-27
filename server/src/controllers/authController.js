@@ -1,6 +1,6 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const { asyncHandler } = require('../middlewares/errorHandler');
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import { asyncHandler } from '../middlewares/errorHandler.js';
 
 
 const generateToken = (userId) => {
@@ -20,11 +20,15 @@ const register = asyncHandler(async (req, res) => {
     });
   }
 
+  // Make the first user with admin@gmail.com an admin
+  const isFirstAdmin = email === 'admin@gmail.com';
+  
   const user = await User.create({
     email,
     password,
     full_name,
-    phone: phone || null
+    phone: phone || null,
+    is_admin: isFirstAdmin
   });
 
   console.log(user);
@@ -157,7 +161,7 @@ const logout = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = {
+export {
   register,
   login,
   getProfile,

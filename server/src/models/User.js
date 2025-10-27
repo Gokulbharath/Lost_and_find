@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -40,6 +39,10 @@ const userSchema = new mongoose.Schema({
   last_login: {
     type: Date,
     default: null
+  },
+  is_admin: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true,
@@ -68,6 +71,8 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 userSchema.methods.getPublicProfile = function() {
   const userObject = this.toObject();
   delete userObject.password;
+  // Include isAdmin in the public profile for frontend
+  userObject.isAdmin = this.is_admin;
   return userObject;
 };
 
@@ -75,5 +80,5 @@ userSchema.virtual('id').get(function() {
   return this._id.toHexString();
 });
 
-module.exports = mongoose.model('User', userSchema);
-
+const User = mongoose.model('User', userSchema);
+export default User;
