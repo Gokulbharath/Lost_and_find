@@ -46,13 +46,20 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const { error } = await signIn(email, password);
+      const { error, user } = await signIn(email, password);
 
       if (error) {
         showToast(error.message || 'Invalid email or password', 'error');
       } else {
         showToast('Login successful!', 'success');
-        navigate('/');
+        // If user is admin, redirect to admin dashboard
+        console.log(user?.isAdmin);
+        
+        if (user?.isAdmin) {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
       }
     } catch {
       showToast('An unexpected error occurred', 'error');

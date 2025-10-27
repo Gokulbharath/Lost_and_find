@@ -13,6 +13,9 @@ import ItemDetails from './pages/ItemDetails';
 import Profile from './pages/Profile';
 import MyReports from './pages/MyReports';
 import AllReports from './pages/AllReports';
+import AdminDashboard from './pages/admin/Dashboard';
+import { AdminProvider } from './contexts/AdminContext';
+import { AdminRoute } from './components/AdminRoute';
 
 function App() {
   return (
@@ -59,6 +62,16 @@ function App() {
               }
             />
             <Route path="/all-reports" element={<AllReports />} />
+            <Route
+                    path="/admin"
+                    element={
+                      <AdminRoute>
+                        <AdminProvider>
+                          <AdminDashboard />
+                        </AdminProvider>
+                      </AdminRoute>
+                    }
+                  />
           </Routes>
         </ToastProvider>
       </AuthProvider>

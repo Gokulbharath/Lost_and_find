@@ -9,6 +9,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 
 export default function Home() {
+  
   const navigate = useNavigate();
   const { user } = useAuth();
   const [lostItems, setLostItems] = useState<LostItem[]>([]);

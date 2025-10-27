@@ -6,8 +6,8 @@ type AuthContextType = {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: AuthError | null; user?: User | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: AuthError | null; user?: User | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: AuthError | null }>;
   updateProfile: (updates: Partial<Profile>) => Promise<{ error: Error | null }>;
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin: u.isAdmin || false
       });
       setProfile({ full_name: u.full_name, phone: u.phone || null });
-      return { error: null };
+      return { error: null, user: { id: u.id || u._id, email: u.email, isAdmin: u.isAdmin || false } };
     } catch (error) {
       return { error: error as AuthError };
     }
@@ -77,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAdmin: u.isAdmin || false
       });
       setProfile({ full_name: u.full_name, phone: u.phone || null });
-      return { error: null };
+      return { error: null, user: { id: u.id || u._id, email: u.email, isAdmin: u.isAdmin || false } };
     } catch (error) {
       return { error: error as AuthError };
     }
