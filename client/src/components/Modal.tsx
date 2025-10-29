@@ -31,24 +31,25 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
       <div
-        className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md"
         onClick={onClose}
       />
       <div
-        className={`relative bg-white rounded-xl shadow-2xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-auto animate-scale-in`}
+        className={`relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 ${sizeClasses[size]} w-full max-h-[90vh] overflow-auto animate-scale-in custom-scrollbar`}
       >
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+        <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between rounded-t-2xl backdrop-blur-sm z-10">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all duration-200 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            aria-label="Close modal"
           >
             <X className="w-6 h-6" />
           </button>
         </div>
-        <div className="p-6">{children}</div>
+        <div className="p-6 text-gray-900 dark:text-gray-100">{children}</div>
       </div>
     </div>
   );
