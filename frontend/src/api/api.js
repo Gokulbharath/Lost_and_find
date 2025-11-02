@@ -29,6 +29,7 @@ export const itemsAPI = {
   listFound: (params) => API.get('/api/items/found', { params }),
   getLost: (id) => API.get(`/api/items/lost/${id}`),
   getFound: (id) => API.get(`/api/items/found/${id}`),
+  getCounts: () => API.get('/api/items/my-counts'),
   createLost: (data, image) => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {

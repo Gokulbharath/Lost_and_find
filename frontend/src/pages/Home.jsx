@@ -14,10 +14,25 @@ export default function Home() {
   const [foundItems, setFoundItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalLost: 0, totalFound: 0, totalReturned: 0 });
+  const [userCounts, setUserCounts] = useState({ lost: 0, found: 0 });
 
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    
+    const fetchUserCounts = async () => {
+      try {
+        const response = await itemsAPI.getCounts();
+        setUserCounts(response.data.data);
+      } catch (error) {
+        console.error('Error loading user counts:', error);
+      }
+    };
+    fetchUserCounts();
+  }, [user]);
 
   const loadData = async () => {
     try {
@@ -75,14 +90,37 @@ export default function Home() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+            {/* User's Personal Stats */}
+            {user && (
+              <div className="max-w-2xl mx-auto">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">My Reports</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-6">
+                    <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">{userCounts.lost}</div>
+                    <div className="text-sm text-red-700 dark:text-red-300">My Lost Items</div>
+                  </div>
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6">
+                    <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">{userCounts.found}</div>
+                    <div className="text-sm text-green-700 dark:text-green-300">My Found Items</div>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <Link to="/my-reports" className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    View My Reports
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Global Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
               <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
                 <div className="text-3xl font-bold text-red-600 mb-2">{stats.totalLost}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Lost Items</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Lost Items</div>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
                 <div className="text-3xl font-bold text-green-600 mb-2">{stats.totalFound}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Found Items</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Total Found Items</div>
               </div>
               <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
                 <div className="text-3xl font-bold text-blue-600 mb-2">{stats.totalReturned}</div>

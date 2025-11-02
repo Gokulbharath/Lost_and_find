@@ -63,7 +63,7 @@ const lostItemSchema = new mongoose.Schema({
   },
   is_active: {
     type: Boolean,
-    default: true
+    default: false
   }
 }, {
   timestamps: true,

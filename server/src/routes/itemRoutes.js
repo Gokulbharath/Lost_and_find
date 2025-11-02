@@ -15,7 +15,8 @@ import {
   getMyFoundItems,
   searchItems,
   getStats,
-  getRecentItems
+  getRecentItems,
+  getMyCounts
 } from '../controllers/itemController.js';
 import { authenticateToken, optionalAuth } from '../middlewares/authMiddleware.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
@@ -79,5 +80,6 @@ router.get('/my/found', authenticateToken, asyncHandler(getMyFoundItems));
 router.get('/search', optionalAuth, asyncHandler(searchItems));
 router.get('/stats', asyncHandler(getStats));
 router.get('/recent', optionalAuth, asyncHandler(getRecentItems));
+router.get('/my-counts', authenticateToken, asyncHandler(getMyCounts));
 
 export default router;

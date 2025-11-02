@@ -3,6 +3,24 @@ import FoundItem from '../models/FoundItem.js';
 import Image from '../models/Image.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 
+const getMyCounts = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  
+  // Get counts for both lost and found items for the user
+  const [lostCount, foundCount] = await Promise.all([
+    LostItem.countDocuments({ user_id: userId }),
+    FoundItem.countDocuments({ user_id: userId })
+  ]);
+  
+  res.json({
+    status: 'success',
+    data: {
+      lost: lostCount,
+      found: foundCount
+    }
+  });
+});
+
 // Helper function to add image data to items
 const addImageToItems = async (items, itemType) => {
   const itemsWithImages = await Promise.all(
@@ -483,6 +501,7 @@ export {
   getMyFoundItems,
   searchItems,
   getStats,
-  getRecentItems
+  getRecentItems,
+  getMyCounts
 };
 
