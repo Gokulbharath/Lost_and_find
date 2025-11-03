@@ -429,7 +429,7 @@ function ApproveExchange({ exchanges, setExchanges }) {
     try {
       await adminAPI.acceptExchangeRequest(id);
       setExchanges((prev) => prev.filter((e) => e._id !== id && e.id !== id));
-      toast.showToast('Exchange accepted', 'success');
+      toast.showToast('Exchange accepted and item marked as returned', 'success');
     } catch (err) {
       console.error(err);
       toast.showToast('Failed to accept exchange', 'error');
@@ -441,7 +441,7 @@ function ApproveExchange({ exchanges, setExchanges }) {
     try {
       await adminAPI.deleteExchangeRequest(id);
       setExchanges((prev) => prev.filter((e) => e._id !== id && e.id !== id));
-      toast.showToast('Exchange deleted', 'success');
+      toast.showToast('Exchange request deleted', 'success');
     } catch (err) {
       console.error(err);
       toast.showToast('Failed to delete exchange', 'error');
@@ -457,9 +457,10 @@ function ApproveExchange({ exchanges, setExchanges }) {
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Offered</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Requested</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item Title</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Category</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Item Type</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -467,18 +468,49 @@ function ApproveExchange({ exchanges, setExchanges }) {
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {exchanges.map((ex) => {
               const id = ex._id || ex.id;
-              const name = ex.user_id?.full_name || ex.name || 'Unknown';
-              const email = ex.user_id?.email || ex.email || '';
+              const name = ex.userId?.full_name || ex.userId?.name || 'Unknown';
+              const email = ex.userId?.email || '';
               return (
                 <tr key={id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-6 py-4 whitespace-nowrap"><span className="text-sm font-medium text-gray-900 dark:text-white">{name}</span></td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="text-sm font-medium text-gray-900 dark:text-white">{name}</span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{ex.offered_item || ex.offeredItem || ex.offered}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{ex.requested_item || ex.requestedItem || ex.requested}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{ex.Category}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{ex.title}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">{ex.category}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      ex.type === 'lost' 
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                    }`}>
+                      {ex.type === 'lost' ? 'Lost' : 'Found'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300">
+                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      ex.status === 'available'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                    }`}>
+                      {ex.status}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm space-x-3 flex items-center">
-                    <button onClick={() => acceptExchange(id)} className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600" title="Accept Exchange">✅</button>
-                    <button onClick={() => deleteExchange(id)} className="p-2 rounded-full bg-rose-500 text-white hover:bg-rose-600" title="Delete Exchange">🗑️</button>
+                    <button 
+                      onClick={() => acceptExchange(id)} 
+                      className="p-2 rounded-full bg-green-500 text-white hover:bg-green-600" 
+                      title="Accept Exchange Request"
+                    >
+                      ✅
+                    </button>
+                    <button 
+                      onClick={() => deleteExchange(id)} 
+                      className="p-2 rounded-full bg-rose-500 text-white hover:bg-rose-600" 
+                      title="Delete Exchange Request"
+                    >
+                      🗑️
+                    </button>
                   </td>
                 </tr>
               );
@@ -486,7 +518,7 @@ function ApproveExchange({ exchanges, setExchanges }) {
 
             {exchanges.length === 0 && (
               <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">No exchange requests.</td>
+                <td colSpan="7" className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">No exchange requests.</td>
               </tr>
             )}
           </tbody>

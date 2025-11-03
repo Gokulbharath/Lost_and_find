@@ -4,10 +4,13 @@ const { Schema } = mongoose;
 
 const ExchangeRequestSchema = new Schema(
   {
-    user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    item_id: { type: Schema.Types.ObjectId, required: true },
-    item_type: { type: String, enum: ['lost', 'found'], required: true },
-    accept: { type: Boolean, default: false }
+    userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    itemId: { type: Schema.Types.ObjectId, required: true },
+    type: { type: String, enum: ['lost', 'found'], required: true },
+    title: { type: String, required: true },
+    category: { type: String, required: true },
+    status: { type: String, required: true },
+    isApproved: { type: Boolean, default: false }
   },
   { timestamps: true }
 );

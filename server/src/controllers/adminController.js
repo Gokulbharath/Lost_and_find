@@ -194,56 +194,41 @@ export const updateUser = asyncHandler(async (req, res) => {
 });
 
 export const getExchangeRequests = asyncHandler(async (req, res) => {
-  const { accept } = req.query;
+  const { isApproved } = req.query;
   const filter = {};
-  if (accept === 'true') filter.accept = true;
-  if (accept === 'false') filter.accept = false;
+  if (isApproved === 'true') filter.isApproved = true;
+  if (isApproved === 'false') filter.isApproved = false;
 
   const requests = await ExchangeRequest.find(filter)
     .sort({ createdAt: -1 })
-    .populate('user_id', 'full_name email');
-
-  const enriched = await Promise.all(
-    requests.map(async (r) => {
-      const obj = r.toObject();
-      let item = null;
-      try {
-        const Model = obj.item_type === 'found' ? FoundItem : LostItem;
-        item = await Model.findById(obj.item_id).populate('user_id', 'full_name email');
-      } catch (e) {
-        item = null;
-      }
-
-      return { ...obj, item };
-    })
-  );
+    .populate('userId', 'full_name email');
 
   res.json({ 
     success: true, 
-    data: enriched 
+    data: requests
   });
 });
 
 export const addExchangeRequest = asyncHandler(async (req, res) => {
-  const { user_id, item_id, item_type } = req.body;
+  const { userId, itemId, type, title, category, status } = req.body;
 
-  if (!user_id || !item_id || !item_type) {
+  console.log('Adding exchange request with data:', req.body);
+
+  if (!userId || !itemId || !type || !title || !category || !status) {
     return res.status(400).json({ 
       success: false, 
-      message: 'user_id, item_id and item_type are required' 
+      message: 'All fields are required' 
     });
   }
 
-  const Model = item_type === 'found' ? FoundItem : LostItem;
-  const item = await Model.findById(item_id);
-  if (!item) {
-    return res.status(404).json({ 
+  if (!['lost', 'found'].includes(type)) {
+    return res.status(400).json({ 
       success: false, 
-      message: 'Referenced item not found' 
+      message: 'Invalid type' 
     });
   }
 
-  const existing = await ExchangeRequest.findOne({ user_id, item_id, item_type });
+  const existing = await ExchangeRequest.findOne({ userId, itemId, type });
   if (existing) {
     return res.status(409).json({ 
       success: false, 
@@ -251,7 +236,15 @@ export const addExchangeRequest = asyncHandler(async (req, res) => {
     });
   }
 
-  const exReq = await ExchangeRequest.create({ user_id, item_id, item_type, accept: false });
+  const exReq = await ExchangeRequest.create({
+    userId,
+    itemId,
+    type,
+    title,
+    category,
+    status,
+    isApproved: false
+  });
 
   res.status(201).json({ 
     success: true, 
@@ -271,12 +264,17 @@ export const acceptExchangeRequest = asyncHandler(async (req, res) => {
     });
   }
 
-  exReq.accept = true;
+  // Mark the request as approved
+  exReq.isApproved = true;
   await exReq.save();
+
+  // Find and update the item's status to 'returned'
+  const Model = exReq.type === 'found' ? FoundItem : LostItem;
+  await Model.findByIdAndUpdate(exReq.itemId, { status: 'returned' });
 
   res.json({ 
     success: true, 
-    message: 'Exchange request accepted', 
+    message: 'Exchange request accepted and item marked as returned', 
     data: exReq 
   });
 });

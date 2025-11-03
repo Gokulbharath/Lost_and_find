@@ -4,12 +4,18 @@ import { ArrowLeft, Calendar, MapPin, Tag, Mail, Phone } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { itemsAPI } from '../api/api';
+import { adminAPI } from '../api/adminApi';
+import { useToast } from '../components/Toast';
+import { useAuth } from '../contexts/useAuth';
 
 export default function ItemDetails() {
   const { type, id } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
+  const toast = useToast();
+  const [claiming, setClaiming] = useState(false);
 
   useEffect(() => {
     const loadItem = async () => {
@@ -60,6 +66,34 @@ export default function ItemDetails() {
   const isLost = type === 'lost';
   const date = isLost ? item.lost_date : item.found_date;
   const dateLabel = isLost ? 'Lost Date' : 'Found Date';
+
+  // ...existing code...
+  const handleClaimOrSeen = async () => {
+    if (!user) {
+      toast.showToast('Please log in to continue', 'error');
+      navigate('/login');
+      return;
+    }
+    setClaiming(true);
+    try {
+      // Payload for exchange request
+      const payload = {
+        itemId: item._id || item.id,
+        userId: user._id || user.id,
+        type,
+        title: item.title,
+        category: item.category,
+        status: item.status,
+      };
+      await adminAPI.addExchangeRequest(payload);
+      toast.showToast('Request sent to admin!', 'success');
+    } catch (err) {
+      console.log(err);
+      toast.showToast('Failed to send request', 'error');
+    } finally {
+      setClaiming(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
@@ -129,10 +163,30 @@ export default function ItemDetails() {
                   )}
                 </div>
               </div>
-              <div className="mt-8">
-                <a href={`mailto:${item.contact_info}?subject=${encodeURIComponent(`Regarding ${isLost ? 'Lost' : 'Found'} Item: ${item.title}`)}`} className="w-full inline-block text-center py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                  Contact Owner
-                </a>
+              <div className="mt-8 flex flex-col gap-4">
+                {user && (
+                  <a href={`mailto:${item.contact_info}?subject=${encodeURIComponent(`Regarding ${isLost ? 'Lost' : 'Found'} Item: ${item.title}`)}`} className="w-full inline-block text-center py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                    Contact Owner
+                  </a>
+                )}
+                {/* Claim/Seen Button */}
+                {user ? (
+                  <button
+                    disabled={claiming}
+                    onClick={handleClaimOrSeen}
+                    className={`w-full inline-block text-center py-3 px-6 ${isLost ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200`}
+                  >
+                    {claiming
+                      ? 'Sending Request...'
+                      : isLost
+                        ? 'I Have Seen This Item'
+                        : 'Claim This Item'}
+                  </button>
+                ) : (
+                  <Link to="/login" className="w-full inline-block text-center py-3 px-6 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                    Login to {isLost ? 'Report Sighting' : 'Claim Item'}
+                  </Link>
+                )}
               </div>
             </div>
           </div>
