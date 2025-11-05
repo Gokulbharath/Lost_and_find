@@ -15,14 +15,16 @@ import { handleValidationErrors } from '../middlewares/validationMiddleware.js';
 const router = express.Router();
 
 const registerValidation = [
-  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+body('email')
+  .isEmail()
+  .withMessage('Please provide a valid email'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
   body('full_name').trim().isLength({ min: 2, max: 100 }).withMessage('Full name must be between 2 and 100 characters'),
   body('phone').optional().isMobilePhone().withMessage('Please provide a valid phone number')
 ];
 
 const loginValidation = [
-  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('email').isEmail().withMessage('Please provide a valid email'),
   body('password').notEmpty().withMessage('Password is required')
 ];
 

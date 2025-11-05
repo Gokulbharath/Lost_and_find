@@ -2,10 +2,19 @@ import nodemailer from 'nodemailer';
 
 // Create reusable transporter object using SMTP transport
 const transporter = nodemailer.createTransport({
-  service: 'gmail',  // or your email service
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
+  }
+});
+
+// Verify transporter configuration
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('SMTP Configuration Error:', error);
+  } else {
+    console.log('SMTP Server is ready to send emails');
   }
 });
 
@@ -16,9 +25,14 @@ export const sendExchangeApprovalEmails = async (exchangeRequest, originalItem, 
   console.log(requestingUser);
   const siteName = process.env.SITE_NAME || 'Lost and Found';
 
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS in .env file');
+    return;
+  }
+
   const claimerEmailOptions = claimer.email
     ? {
-        from: process.env.EMAIL_USER,
+        from: `${process.env.SITE_NAME} <${process.env.EMAIL_USER}>`,
         to: claimer.email,
         subject: `Your ${exchangeRequest.type === 'lost' ? 'Lost' : 'Found'} Item Exchange Request Approved - ${siteName}`,
         html: `
