@@ -1,7 +1,8 @@
+// @refresh reset
 import { createContext, useEffect, useState } from 'react';
 import { authAPI } from '../api/api';
 
-export const AuthContext = createContext(undefined);
+export const authContext = createContext(undefined);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -31,10 +32,15 @@ export function AuthProvider({ children }) {
     init();
   }, []);
 
-  const signUp = async (email, password) => {
+  const signUp = async (userData) => {
     try {
-      const full_name = email.split('@')[0];
-      const res = await authAPI.register({ email, password, full_name });
+      // Ensure we pass the fields the server expects: email, password, full_name, phone
+      const { email, password, full_name, phone } = userData;
+      const payload = { email, password, full_name };
+      if (phone !== undefined) payload.phone = phone;
+      
+      console.log("auth -- ", payload.email);
+      const res = await authAPI.register(payload);
       const { token, user: u } = res.data.data;
       localStorage.setItem('token', token);
       setUser({ id: u.id || u._id, email: u.email, isAdmin: u.isAdmin || false });
@@ -91,7 +97,7 @@ export function AuthProvider({ children }) {
   };
 
   const value = { user, profile, loading, signUp, signIn, signOut, resetPassword, updateProfile };
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <authContext.Provider value={value}>{children}</authContext.Provider>;
 }
 
 

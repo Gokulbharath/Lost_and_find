@@ -423,7 +423,7 @@ function ApprovePost({ items, setItems }) {
 
 function ApproveExchange({ exchanges, setExchanges }) {
   const toast = useToast();
-
+  
   const acceptExchange = async (id) => {
     if (!window.confirm('Accept this exchange request?')) return;
     try {

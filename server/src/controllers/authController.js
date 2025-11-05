@@ -11,7 +11,7 @@ const generateToken = (userId) => {
 
 const register = asyncHandler(async (req, res) => {
   const { email, password, full_name, phone } = req.body;
-  
+  console.log("cont -- ", email, password, full_name, phone);
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     return res.status(400).json({

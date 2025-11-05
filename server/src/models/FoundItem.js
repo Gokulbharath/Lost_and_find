@@ -61,6 +61,12 @@ const foundItemSchema = new mongoose.Schema({
     },
     default: 'available'
   },
+  // New boolean flag to mark an item as returned (preferred over using status)
+  returned: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
   is_active: {
     type: Boolean,
     default: false

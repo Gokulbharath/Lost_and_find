@@ -1,8 +1,9 @@
+// @refresh reset
 import { createContext, useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { adminAPI } from '../api/adminApi';
 
-export const AdminContext = createContext(undefined);
+export const adminContext = createContext(undefined);
 
 export function AdminProvider({ children }) {
   const { user } = useAuth();
@@ -79,7 +80,7 @@ export function AdminProvider({ children }) {
   };
 
   const value = { users, items, loading, error, deleteUser, suspendUser, deleteItem, updateItemStatus, refreshData };
-  return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>;
+  return <adminContext.Provider value={value}>{children}</adminContext.Provider>;
 }
 
 

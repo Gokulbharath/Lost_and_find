@@ -431,7 +431,8 @@ const getStats = asyncHandler(async (req, res) => {
   const [totalLost, totalFound, totalReturned] = await Promise.all([
     LostItem.countDocuments({ is_active: true }),
     FoundItem.countDocuments({ is_active: true }),
-    FoundItem.countDocuments({ is_active: true, status: 'returned' })
+    // Use the returned boolean flag instead of status === 'returned'
+    FoundItem.countDocuments({ is_active: true, returned: true })
   ]);
 
   res.json({

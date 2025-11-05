@@ -3,6 +3,7 @@ import LostItem from '../models/LostItem.js';
 import FoundItem from '../models/FoundItem.js';
 import { asyncHandler } from '../middlewares/errorHandler.js';
 import ExchangeRequest from '../models/ExchangeRequest.js';
+import { sendExchangeApprovalEmails } from '../utils/mailer.js';
 
 export const getUsers = asyncHandler(async (req, res) => {
   const users = await User.find()
@@ -210,9 +211,16 @@ export const getExchangeRequests = asyncHandler(async (req, res) => {
 });
 
 export const addExchangeRequest = asyncHandler(async (req, res) => {
-  const { userId, itemId, type, title, category, status } = req.body;
+  // Prefer the authenticated user id when available (prevents spoofing)
+  const body = req.body || {};
+  const itemId = body.itemId;
+  const type = body.type;
+  const title = body.title;
+  const category = body.category;
+  const status = body.status;
+  const userId = req.user && req.user._id ? req.user._id : body.userId;
 
-  console.log('Adding exchange request with data:', req.body);
+  console.log('Adding exchange request with data:', { userId, itemId, type, title, category, status });
 
   if (!userId || !itemId || !type || !title || !category || !status) {
     return res.status(400).json({ 
@@ -255,8 +263,8 @@ export const addExchangeRequest = asyncHandler(async (req, res) => {
 
 export const acceptExchangeRequest = asyncHandler(async (req, res) => {
   const { id } = req.params;
-
-  const exReq = await ExchangeRequest.findById(id);
+  
+  const exReq = await ExchangeRequest.findById(id).populate('userId');
   if (!exReq) {
     return res.status(404).json({ 
       success: false, 
@@ -264,13 +272,34 @@ export const acceptExchangeRequest = asyncHandler(async (req, res) => {
     });
   }
 
+  console.log(exReq);
+
+  // Find the original item and its owner
+  const Model = exReq.type === 'found' ? FoundItem : LostItem;
+  const item = await Model.findById(exReq.itemId).populate('user_id');
+  if (!item) {
+    return res.status(404).json({ 
+      success: false, 
+      message: 'Original item not found' 
+    });
+  }
+
   // Mark the request as approved
   exReq.isApproved = true;
   await exReq.save();
 
-  // Find and update the item's status to 'returned'
-  const Model = exReq.type === 'found' ? FoundItem : LostItem;
-  await Model.findByIdAndUpdate(exReq.itemId, { status: 'returned' });
+  // Update the item's status to 'returned'
+  // Mark the item as returned using the boolean flag instead of changing status
+  item.returned = true;
+  await item.save();
+
+  // Send notification emails
+  try {
+    await sendExchangeApprovalEmails(exReq, item, exReq.userId);
+  } catch (emailError) {
+    console.error('Failed to send notification emails:', emailError);
+    // Continue with the approval process even if email sending fails
+  }
 
   res.json({ 
     success: true, 

@@ -37,6 +37,7 @@ router.post('/items/:itemId/accept', asyncHandler(acceptItem));
 router.post('/items/:itemId/reject', asyncHandler(rejectItem));
 
 router.get('/exchange-requests', asyncHandler(getExchangeRequests));
+// Require authentication for creating exchange requests so we can reliably use the current user id
 router.post('/exchange-requests', asyncHandler(addExchangeRequest));
 router.post('/exchange-requests/:id/accept', asyncHandler(acceptExchangeRequest));
 router.delete('/exchange-requests/:id', asyncHandler(deleteExchangeRequest));

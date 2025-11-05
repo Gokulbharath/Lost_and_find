@@ -49,8 +49,12 @@ export default function Signup() {
     e.preventDefault();
     if (!validateForm()) return;
     setLoading(true);
+    console.log("jsp --- ", formData.email);
+
+  const obj = { email: formData.email, password: formData.password, full_name: formData.fullName, phone: formData.phone || null };
+
     try {
-      const { error } = await signUp(formData.email, formData.password);
+      const { error } = await signUp(obj);
       if (error) {
         showToast(error.message || 'Failed to create account', 'error');
       } else {
