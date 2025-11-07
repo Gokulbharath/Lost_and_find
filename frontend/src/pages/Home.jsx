@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Upload, Bell, CheckCircle, Plus, PackageSearch } from 'lucide-react';
+import { Upload, Bell, CheckCircle, Plus, PackageSearch, Sparkles, ArrowRight, TrendingUp, Users, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { itemsAPI } from '../api/api';
 import { useAuth } from '../contexts/useAuth';
 import { ItemCard } from '../components/ItemCard';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -15,6 +16,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ totalLost: 0, totalFound: 0, totalReturned: 0 });
   const [userCounts, setUserCounts] = useState({ lost: 0, found: 0 });
+
+  // Scroll animation refs
+  const [heroRef, heroVisible] = useScrollAnimation({ threshold: 0.2 });
+  const [statsRef, statsVisible] = useScrollAnimation({ threshold: 0.3 });
+  const [itemsRef, itemsVisible] = useScrollAnimation({ threshold: 0.2 });
+  const [howItWorksRef, howItWorksVisible] = useScrollAnimation({ threshold: 0.2 });
 
   useEffect(() => {
     loadData();
@@ -55,142 +62,252 @@ export default function Home() {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen porto-bg relative overflow-x-hidden">
       <Navbar />
 
-      <section className="relative bg-gradient-to-br from-blue-50 via-blue-100 to-cyan-100 dark:from-gray-900 dark:to-gray-800 py-20 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-              Find What You Lost,<br />Return What You Found
+      {/* Hero Section Porto Style */}
+      <section 
+        ref={heroRef}
+        className={`porto-hero transition-all duration-1000 ${
+          heroVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+        }`}
+      >
+        <div className="container relative z-10 px-4 py-20">
+          <div className="text-center max-w-5xl mx-auto">
+            <div className={`inline-block mb-8 px-6 py-3 border-2 border-[#111827] bg-white rounded-full shadow-[4px_4px_0_#111827] transform transition-all duration-700 ${
+              heroVisible ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
+            }`}>
+              <div className="flex items-center gap-2 text-[#111827]">
+                <Sparkles className="w-5 h-5" />
+                <span className="font-black">Finders Keepers. Together.</span>
+              </div>
+            </div>
+
+            <h1 className={`porto-hero-title transform transition-all duration-1000 delay-200 ${
+              heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}>
+              Lost Something?
+              <br />
+              <span style={{ color: '#4f46e5' }}>We'll Help You Find It</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl mx-auto">
-              A centralized campus platform to connect lost and found items instantly
+
+            <p className={`porto-hero-subtitle transform transition-all duration-1000 delay-300 ${
+              heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}>
+              Your campus hub for seamless item reuniting. Connect with the community and make someone's day.
             </p>
 
-            {user ? (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                <Link to="/report-lost" className="flex items-center gap-2 px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-                  <Plus className="w-5 h-5" />
-                  Report Lost Item
-                </Link>
-                <Link to="/report-found" className="flex items-center gap-2 px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-                  <CheckCircle className="w-5 h-5" />
-                  Report Found Item
-                </Link>
-              </div>
-            ) : (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
-                <Link to="/signup" className="flex items-center gap-2 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-                  Get Started
-                </Link>
-                <Link to="/login" className="flex items-center gap-2 px-8 py-4 bg-white hover:bg-gray-50 text-gray-900 font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
-                  Login
-                </Link>
-              </div>
-            )}
+            <div className={`flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 transform transition-all duration-1000 delay-500 ${
+              heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+            }`}>
+              {user ? (
+                <>
+                  <Link to="/report-lost" className="porto-hero-btn flex items-center gap-3">
+                    <Plus className="w-5 h-5" />
+                    <span>Report Lost Item</span>
+                  </Link>
+                  <Link to="/report-found" className="porto-hero-btn flex items-center gap-3">
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Report Found Item</span>
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/signup" className="porto-hero-btn flex items-center gap-3">
+                    <span>Get Started Free</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </Link>
+                  <Link to="/login" className="porto-btn porto-btn-primary">
+                    Login
+                  </Link>
+                </>
+              )}
+            </div>
 
             {/* User's Personal Stats */}
             {user && (
-              <div className="max-w-2xl mx-auto">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 text-center">My Reports</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-6">
-                    <div className="text-3xl font-bold text-red-600 dark:text-red-400 mb-2">{userCounts.lost}</div>
-                    <div className="text-sm text-red-700 dark:text-red-300">My Lost Items</div>
+              <div className={`max-w-2xl mx-auto mb-12 transform transition-all duration-1000 delay-700 ${
+                heroVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+              }`}>
+                <h3 className="text-3xl font-black text-[#111827] mb-8 text-center flex items-center justify-center gap-2">
+                  <Heart className="w-7 h-7" />
+                  My Activity
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+                  <div className="porto-stat-card">
+                    <div className="porto-stat-number">{userCounts.lost}</div>
+                    <div className="porto-stat-label">My Lost Items</div>
                   </div>
-                  <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-6">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">{userCounts.found}</div>
-                    <div className="text-sm text-green-700 dark:text-green-300">My Found Items</div>
+                  <div className="porto-stat-card">
+                    <div className="porto-stat-number">{userCounts.found}</div>
+                    <div className="porto-stat-label">My Found Items</div>
                   </div>
                 </div>
                 <div className="text-center">
-                  <Link to="/my-reports" className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                  <Link to="/my-reports" className="porto-btn porto-btn-primary inline-flex items-center gap-2">
                     View My Reports
+                    <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
               </div>
             )}
 
             {/* Global Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto mb-8">
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
-                <div className="text-3xl font-bold text-red-600 mb-2">{stats.totalLost}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Total Lost Items</div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
-                <div className="text-3xl font-bold text-green-600 mb-2">{stats.totalFound}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Total Found Items</div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md">
-                <div className="text-3xl font-bold text-blue-600 mb-2">{stats.totalReturned}</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Successful Returns</div>
-              </div>
+            <div 
+              ref={statsRef}
+              className={`grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto transform transition-all duration-1000 delay-300 ${
+                statsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+              }`}
+            >
+              {[
+                { icon: PackageSearch, label: 'Total Lost Items', value: stats.totalLost },
+                { icon: CheckCircle, label: 'Total Found Items', value: stats.totalFound },
+                { icon: TrendingUp, label: 'Successful Returns', value: stats.totalReturned },
+              ].map((stat, idx) => (
+                <div 
+                  key={idx}
+                  className={`porto-stat-card transform transition-all duration-500 ${
+                    statsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+                  }`}
+                  style={{ transitionDelay: `${idx * 100}ms` }}
+                >
+                  <div className="inline-flex items-center justify-center w-16 h-16 border-2 border-[#111827] bg-white rounded-xl mb-4 shadow-[4px_4px_0_#111827]">
+                    <stat.icon className="w-8 h-8 text-[#111827]" />
+                  </div>
+                  <div className="porto-stat-number">{stat.value}</div>
+                  <div className="porto-stat-label">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Recent Items</h2>
-          <Link to="/search" className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200">
-            <PackageSearch className="w-4 h-4" />
-            View All Items
-          </Link>
-        </div>
+      {/* Recent Items Section */}
+      <section 
+        ref={itemsRef}
+        className={`porto-section transform transition-all duration-1000 ${
+          itemsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+        }`}
+      >
+        <div className="container">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-4">
+            <div>
+              <h2 className="porto-section-title text-left">
+                Latest Discoveries
+              </h2>
+              <p className="porto-section-subtitle text-left mb-0">Recently reported items from our community</p>
+            </div>
+            <Link 
+              to="/search" 
+              className="porto-btn porto-btn-primary flex items-center gap-2"
+            >
+              <PackageSearch className="w-5 h-5" />
+              <span>View All</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-md h-80 animate-pulse">
-                <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-t-xl"></div>
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
-                  <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="porto-card h-80 animate-pulse">
+                  <div className="h-48 bg-[#f3f4f6] rounded-lg mb-4"></div>
+                  <div className="space-y-3">
+                    <div className="h-4 bg-[#f3f4f6] rounded w-3/4"></div>
+                    <div className="h-3 bg-[#f3f4f6] rounded w-1/2"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : allItems.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {allItems.map((item, idx) => (
+                <div
+                  key={`${item.type}-${item.id}`}
+                  className={`transform transition-all duration-700 ${
+                    itemsVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+                  }`}
+                  style={{ transitionDelay: `${idx * 150}ms` }}
+                >
+                  <ItemCard 
+                    item={item} 
+                    type={item.type} 
+                    onClick={() => navigate(`/item/${item.type}/${item.id}`)} 
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20 porto-card">
+              <PackageSearch className="w-20 h-20 text-[#6b7280] mx-auto mb-6" />
+              <p className="text-xl text-[#111827] font-black">No items reported yet</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section 
+        ref={howItWorksRef}
+        className={`porto-section border-t-2 border-[#111827] transform transition-all duration-1000 ${
+          howItWorksVisible ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <div className="container">
+          <div className={`text-center mb-16 transform transition-all duration-1000 ${
+            howItWorksVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
+          }`}>
+            <h2 className="porto-section-title">
+              How It Works
+            </h2>
+            <p className="porto-section-subtitle">
+              Simple steps to reunite lost items with their owners
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { 
+                icon: Upload, 
+                title: 'Report Lost Item', 
+                desc: 'Post details about your lost item with a photo and description. The more details, the better!',
+                delay: 0
+              },
+              { 
+                icon: CheckCircle, 
+                title: 'Someone Finds It', 
+                desc: 'Community members report found items to the platform. Our matching system helps connect you.',
+                delay: 200
+              },
+              { 
+                icon: Bell, 
+                title: 'Get Connected', 
+                desc: 'Connect with finders through the platform to retrieve your item. Reunite and restore smiles!',
+                delay: 400
+              },
+            ].map((step, idx) => (
+              <div 
+                key={idx}
+                className={`group text-center transform transition-all duration-700 ${
+                  howItWorksVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'
+                }`}
+                style={{ transitionDelay: `${step.delay}ms` }}
+              >
+                <div className="relative mb-8">
+                  <div className="w-28 h-28 border-2 border-[#111827] bg-white rounded-3xl flex items-center justify-center mx-auto shadow-[8px_8px_0_#111827] group-hover:translate-[-2px,-2px] group-hover:shadow-[10px_10px_0_#111827] transition-all duration-150">
+                    <step.icon className="w-14 h-14 text-[#111827]" />
+                  </div>
+                  <div className="absolute -top-3 -right-3 w-12 h-12 border-2 border-[#111827] bg-white rounded-2xl flex items-center justify-center shadow-[4px_4px_0_#111827] group-hover:scale-110 transition-all duration-300">
+                    <span className="text-[#111827] font-black text-xl">{idx + 1}</span>
+                  </div>
+                </div>
+                <div className="porto-card">
+                  <h3 className="text-2xl font-black text-[#111827] mb-4">{step.title}</h3>
+                  <p className="porto-item-text">{step.desc}</p>
                 </div>
               </div>
             ))}
-          </div>
-        ) : allItems.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allItems.map((item) => (
-              <ItemCard key={`${item.type}-${item.id}`} item={item} type={item.type} onClick={() => navigate(`/item/${item.type}/${item.id}`)} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <PackageSearch className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 dark:text-gray-400">No items reported yet</p>
-          </div>
-        )}
-      </section>
-
-      <section className="bg-white dark:bg-gray-900 py-16 transition-colors duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-12">How It Works</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Upload className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">1. Report a Lost Item</h3>
-              <p className="text-gray-600 dark:text-gray-400">Post details about your lost item with a photo and description</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <CheckCircle className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">2. Someone Finds It</h3>
-              <p className="text-gray-600 dark:text-gray-400">Community members report found items to the platform</p>
-            </div>
-            <div className="text-center">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Bell className="w-10 h-10 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">3. Get Connected</h3>
-              <p className="text-gray-600 dark:text-gray-400">Connect with finders through the platform to retrieve your item</p>
-            </div>
           </div>
         </div>
       </section>

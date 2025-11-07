@@ -77,42 +77,42 @@ export default function Search() {
   const results = filteredItems();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen porto-bg">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Search Items</h1>
+          <h1 className="porto-section-title text-left mb-4">Search Items</h1>
           <SearchBar value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full" />
         </div>
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-64 flex-shrink-0">
-            <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden w-full mb-4 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <button onClick={() => setShowFilters(!showFilters)} className="lg:hidden w-full mb-4 porto-btn porto-btn-primary flex items-center justify-center gap-2">
               <Filter className="w-4 h-4" />
               {showFilters ? 'Hide Filters' : 'Show Filters'}
             </button>
-            <div className={`bg-white dark:bg-gray-900 rounded-xl p-6 shadow-md space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Filters</h3>
+            <div className={`porto-card space-y-6 ${showFilters ? 'block' : 'hidden lg:block'}`}>
+              <h3 className="porto-title mb-4">Filters</h3>
               <FormSelect label="Status" value={status} onChange={(e) => setStatus(e.target.value)} options={statusOptions} />
               <FormSelect label="Category" value={category} onChange={(e) => setCategory(e.target.value)} options={categories} />
               <div>
-                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Location</label>
-                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Filter by location" className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" />
+                <label className="block text-sm font-black text-[#111827] mb-2">Location</label>
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Filter by location" className="porto-input" />
               </div>
-              <button onClick={() => { setSearchQuery(''); setCategory(''); setStatus(''); setLocation(''); }} className="w-full px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+              <button onClick={() => { setSearchQuery(''); setCategory(''); setStatus(''); setLocation(''); }} className="porto-btn w-full">
                 Clear Filters
               </button>
             </div>
           </div>
           <div className="flex-1">
-            <div className="mb-4 text-sm text-gray-600 dark:text-gray-400">Found {results.length} item{results.length !== 1 ? 's' : ''}</div>
+            <div className="mb-4 text-sm text-[#6b7280] font-semibold">Found {results.length} item{results.length !== 1 ? 's' : ''}</div>
             {loading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="bg-white dark:bg-gray-900 rounded-xl shadow-md h-80 animate-pulse">
-                    <div className="h-48 bg-gray-200 dark:bg-gray-800 rounded-t-xl"></div>
-                    <div className="p-4 space-y-3">
-                      <div className="h-4 bg-gray-200 dark:bg-gray-800 rounded w-3/4"></div>
-                      <div className="h-3 bg-gray-200 dark:bg-gray-800 rounded w-1/2"></div>
+                  <div key={i} className="porto-card h-80 animate-pulse">
+                    <div className="h-48 bg-[#f3f4f6] rounded-lg mb-4"></div>
+                    <div className="space-y-3">
+                      <div className="h-4 bg-[#f3f4f6] rounded w-3/4"></div>
+                      <div className="h-3 bg-[#f3f4f6] rounded w-1/2"></div>
                     </div>
                   </div>
                 ))}
@@ -124,10 +124,10 @@ export default function Search() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16">
-                <PackageSearch className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 dark:text-gray-400 text-lg">No items found for your search</p>
-                <p className="text-gray-500 dark:text-gray-500 text-sm mt-2">Try adjusting your filters</p>
+              <div className="text-center py-16 porto-card">
+                <PackageSearch className="w-16 h-16 text-[#6b7280] mx-auto mb-4" />
+                <p className="text-[#111827] text-lg font-black">No items found for your search</p>
+                <p className="text-[#6b7280] text-sm mt-2 font-semibold">Try adjusting your filters</p>
               </div>
             )}
           </div>
