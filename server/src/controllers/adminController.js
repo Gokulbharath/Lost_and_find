@@ -284,14 +284,12 @@ export const acceptExchangeRequest = asyncHandler(async (req, res) => {
     });
   }
 
-  // Mark the request as approved
-  exReq.isApproved = true;
-  await exReq.save();
-
-  // Update the item's status to 'returned'
-  // Mark the item as returned using the boolean flag instead of changing status
+  // Mark the item as returned using the boolean flag
   item.returned = true;
   await item.save();
+
+  // Delete the exchange request since it's been approved
+  await ExchangeRequest.findByIdAndDelete(id);
 
   // Send notification emails
   try {

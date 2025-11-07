@@ -428,6 +428,7 @@ function ApproveExchange({ exchanges, setExchanges }) {
     if (!window.confirm('Accept this exchange request?')) return;
     try {
       await adminAPI.acceptExchangeRequest(id);
+      deleteExchange(id);
       setExchanges((prev) => prev.filter((e) => e._id !== id && e.id !== id));
       toast.showToast('Exchange accepted and item marked as returned', 'success');
     } catch (err) {

@@ -1,22 +1,45 @@
 import nodemailer from 'nodemailer';
 
-// Create reusable transporter object using SMTP transport
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
-});
+// Transporter will be initialized asynchronously. We expose a promise so callers can await readiness.
+let transporter = null;
+let isTestAccount = false;
+const transporterReady = (async () => {
+  try {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS
+        }
+      });
 
-// Verify transporter configuration
-transporter.verify(function(error, success) {
-  if (error) {
-    console.error('SMTP Configuration Error:', error);
-  } else {
-    console.log('SMTP Server is ready to send emails');
+      try {
+        await transporter.verify();
+        console.log('SMTP Server is ready to send emails');
+      } catch (err) {
+        console.error('SMTP Configuration Error:', err);
+      }
+    } else {
+      // No real credentials provided — create a test account (Ethereal) for development/testing
+      console.warn('EMAIL_USER / EMAIL_PASS not set — falling back to Ethereal test SMTP account for email testing');
+      const testAccount = await nodemailer.createTestAccount();
+      transporter = nodemailer.createTransport({
+        host: 'smtp.ethereal.email',
+        port: 587,
+        secure: false,
+        auth: {
+          user: testAccount.user,
+          pass: testAccount.pass
+        }
+      });
+      isTestAccount = true;
+      console.log('Ethereal test account created. Messages will be visible via preview URLs in the logs.');
+    }
+  } catch (err) {
+    console.error('Failed to initialize mail transporter:', err);
   }
-});
+})();
 
 export const sendExchangeApprovalEmails = async (exchangeRequest, originalItem, requestingUser) => {
   // Normalize user objects and provide safe fallbacks
@@ -25,14 +48,17 @@ export const sendExchangeApprovalEmails = async (exchangeRequest, originalItem, 
   console.log(requestingUser);
   const siteName = process.env.SITE_NAME || 'Lost and Found';
 
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('Email configuration missing. Please set EMAIL_USER and EMAIL_PASS in .env file');
+  // Wait for transporter to be ready
+  await transporterReady;
+
+  if (!transporter) {
+    console.error('No mail transporter available - skipping email notifications');
     return;
   }
 
   const claimerEmailOptions = claimer.email
     ? {
-        from: `${process.env.SITE_NAME} <${process.env.EMAIL_USER}>`,
+        from: process.env.EMAIL_USER ? `${process.env.SITE_NAME} <${process.env.EMAIL_USER}>` : `${process.env.SITE_NAME} <no-reply@localhost>`,
         to: claimer.email,
         subject: `Your ${exchangeRequest.type === 'lost' ? 'Lost' : 'Found'} Item Exchange Request Approved - ${siteName}`,
         html: `
@@ -56,7 +82,7 @@ export const sendExchangeApprovalEmails = async (exchangeRequest, originalItem, 
 
   const ownerEmailOptions = owner.email
     ? {
-        from: process.env.EMAIL_USER,
+        from: process.env.EMAIL_USER ? `${process.env.SITE_NAME} <${process.env.EMAIL_USER}>` : `${process.env.SITE_NAME} <no-reply@localhost>`,
         to: owner.email,
         subject: `Your Item Has Been ${exchangeRequest.type === 'lost' ? 'Found' : 'Claimed'} - ${siteName}`,
         html: `
@@ -91,8 +117,16 @@ export const sendExchangeApprovalEmails = async (exchangeRequest, originalItem, 
   }
 
   try {
-    await Promise.all(sendPromises);
+    const results = await Promise.all(sendPromises);
     console.log('Exchange approval emails sent successfully');
+
+    // If using Ethereal test account, log preview URLs so developers can view the messages
+    if (isTestAccount) {
+      results.forEach((info) => {
+        const url = nodemailer.getTestMessageUrl(info);
+        if (url) console.log('Preview URL:', url);
+      });
+    }
   } catch (error) {
     console.error('Error sending exchange approval emails:', error);
     // Do not throw to avoid breaking the approving flow; caller already handles logging
