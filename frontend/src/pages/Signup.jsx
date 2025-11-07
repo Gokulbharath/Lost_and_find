@@ -49,7 +49,6 @@ export default function Signup() {
     e.preventDefault();
     if (!validateForm()) return;
     setLoading(true);
-    console.log("jsp --- ", formData.email);
 
   const obj = { email: formData.email, password: formData.password, full_name: formData.fullName, phone: formData.phone || null };
 

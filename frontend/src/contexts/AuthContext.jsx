@@ -36,7 +36,7 @@ export function AuthProvider({ children }) {
     try {
       // Ensure we pass the fields the server expects: email, password, full_name, phone
       const { email, password, full_name, phone } = userData;
-      const payload = { email, password, full_name };
+      const payload = { email, password, full_name, phone };
       if (phone !== undefined) payload.phone = phone;
       
       console.log("auth -- ", payload.email);
